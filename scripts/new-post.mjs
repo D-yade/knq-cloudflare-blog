@@ -38,6 +38,7 @@ const month = String(now.getMonth() + 1).padStart(2, '0');
 const day = String(now.getDate()).padStart(2, '0');
 
 const pubDate = `${year}-${month}-${day}`;
+const heroImageName = `${slug}.png`;
 
 const safeTitle = title.replaceAll('"', '\\"');
 const safeDescription = description.replaceAll('"', '\\"');
@@ -47,6 +48,7 @@ const frontmatter = [
 	`title: "${safeTitle}"`,
 	`description: "${safeDescription}"`,
 	`pubDate: ${pubDate}`,
+	`heroImage: "../../assets/blog/${heroImageName}"`,
 	'---',
 	''
 ].join('\n');
@@ -94,7 +96,12 @@ fs.writeFileSync(filePath, article, 'utf8');
 console.log('');
 console.log('✅ 新しい記事を作成しました！');
 console.log('');
-console.log(`📄 ${filePath}`);
+console.log(`📄 記事：${filePath}`);
 console.log(`🌐 公開後URL：https://kn-q.com/blog/${slug}/`);
+console.log('');
+console.log('🖼 アイキャッチ画像');
+console.log(`src/assets/blog/${heroImageName}`);
+console.log('');
+console.log('この名前で画像を用意してください。');
 console.log('');
 console.log('VS Codeで記事を編集してください。');
