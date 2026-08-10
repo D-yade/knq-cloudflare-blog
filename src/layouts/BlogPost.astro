@@ -3,84 +3,291 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+	headings?: Array<{
+		depth: number;
+		slug: string;
+		text: string;
+	}>;
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	headings = [],
+} = Astro.props;
+
+const formatJapaneseDate = (date: Date) =>
+	new Intl.DateTimeFormat('ja-JP', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	}).format(date);
+
+const tocHeadings = headings.filter((heading) => heading.depth === 2);
 ---
 
-<html lang="en">
+<!doctype html>
+<html lang="ja">
 	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
+		<BaseHead
+			title={`${title} | 気になるニュースブログ`}
+			description={description}
+			image={heroImage}
+		/>
 	</head>
 
 	<body>
 		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+
+		<main class="article-page">
+			<article class="article-container">
+
+				<div class="breadcrumb">
+					<a href="/">ホーム</a>
+					<span>›</span>
+					<a href="/blog/">記事一覧</a>
+					<span>›</span>
+					<span class="current">この記事</span>
 				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
+
+				<header class="article-header">
+					<p class="article-category">気になるニュース解説</p>
+
+					<h1>{title}</h1>
+
+					<p class="article-description">
+						{description}
+					</p>
+
+					<div class="article-meta">
+						<span>公開日：{formatJapaneseDate(pubDate)}</span>
+
+						{
+							updatedDate && (
+								<span>
+									更新日：{formatJapaneseDate(updatedDate)}
+								</span>
+							)
+						}
 					</div>
+				</header>
+
+				{
+					heroImage && (
+						<div class="hero-image-wrap">
+							<Image
+								width={1200}
+								height={630}
+								src={heroImage}
+								alt={title}
+							/>
+						</div>
+					)
+				}
+
+				<div class="article-body">
+
+					{
+						tocHeadings.length > 0 && (
+							<nav class="toc" aria-label="この記事の目次">
+								<p class="toc-title">この記事の目次</p>
+
+								<ol>
+									{
+										tocHeadings.map((heading) => (
+											<li>
+												<a href={`#${heading.slug}`}>
+													{heading.text}
+												</a>
+											</li>
+										))
+									}
+								</ol>
+							</nav>
+						)
+					}
+
 					<slot />
+
 				</div>
+
 			</article>
 		</main>
+
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.article-page {
+		padding: 34px 20px 70px;
+		background: #f5f6f8;
+		min-height: 100vh;
+	}
+
+	.article-container {
+		max-width: 900px;
+		margin: 0 auto;
+		background: #ffffff;
+		border-radius: 12px;
+		box-shadow: 0 3px 18px rgba(0, 0, 0, 0.06);
+		overflow: hidden;
+	}
+
+	.breadcrumb {
+		padding: 22px 48px 0;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.82rem;
+		color: #777;
+	}
+
+	.breadcrumb a {
+		color: #557199;
+		text-decoration: none;
+	}
+
+	.article-header {
+		padding: 24px 48px 30px;
+	}
+
+	.article-category {
+		display: inline-block;
+		margin: 0 0 16px;
+		padding: 5px 11px;
+		border-radius: 999px;
+		background: #eef4ff;
+		color: #2459a9;
+		font-size: 0.8rem;
+		font-weight: 700;
+	}
+
+	.article-header h1 {
+		margin: 0;
+		font-size: clamp(1.8rem, 3.4vw, 2.45rem);
+		line-height: 1.4;
+		color: #202124;
+	}
+
+	.article-description {
+		margin: 20px 0 0;
+		line-height: 1.85;
+		color: #5f6368;
+	}
+
+	.article-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 18px;
+		margin-top: 18px;
+		font-size: 0.86rem;
+		color: #777;
+	}
+
+	.hero-image-wrap {
+		margin: 0 48px 34px;
+		border-radius: 10px;
+		overflow: hidden;
+	}
+
+	.hero-image-wrap :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.article-body {
+		padding: 6px 48px 62px;
+		font-size: 1.04rem;
+		line-height: 2;
+		color: #303134;
+	}
+
+	.toc {
+		margin: 0 0 42px;
+		padding: 24px 26px;
+		border: 1px solid #d9e2ef;
+		border-radius: 10px;
+		background: #f8fbff;
+	}
+
+	.toc-title {
+		margin: 0 0 14px !important;
+		font-size: 1.1rem;
+		font-weight: 700;
+	}
+
+	.toc ol {
+		margin: 0;
+		padding-left: 1.4em;
+	}
+
+	.toc li {
+		margin: 0.45em 0;
+	}
+
+	.toc a {
+		color: #2459a9;
+		text-decoration: none;
+	}
+
+	.article-body :global(p) {
+		margin: 0 0 1.75em;
+	}
+
+	.article-body :global(h2) {
+		margin: 2.7em 0 1.15em;
+		padding: 13px 17px;
+		border-left: 5px solid #376fd0;
+		background: #f2f6fc;
+		border-radius: 5px;
+		font-size: 1.5rem;
+		line-height: 1.5;
+	}
+
+	.article-body :global(h3) {
+		margin: 2.2em 0 1em;
+		padding-bottom: 9px;
+		border-bottom: 2px solid #e2e5e9;
+		font-size: 1.25rem;
+	}
+
+	@media (max-width: 720px) {
+		.article-page {
+			padding: 14px 8px 45px;
+		}
+
+		.breadcrumb {
+			padding: 18px 20px 0;
+		}
+
+		.article-header {
+			padding: 20px;
+		}
+
+		.article-header h1 {
+			font-size: 1.7rem;
+		}
+
+		.hero-image-wrap {
+			margin: 0 14px 28px;
+		}
+
+		.article-body {
+			padding: 4px 20px 42px;
+			font-size: 1rem;
+		}
+
+		.toc {
+			padding: 20px;
+		}
+	}
+</style>

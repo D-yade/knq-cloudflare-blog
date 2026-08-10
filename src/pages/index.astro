@@ -1,49 +1,469 @@
 ---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog'))
+	.sort(
+		(a, b) =>
+			new Date(b.data.pubDate).valueOf() -
+			new Date(a.data.pubDate).valueOf()
+	)
+	.slice(0, 6);
+
+const formatJapaneseDate = (date: Date) =>
+	new Intl.DateTimeFormat('ja-JP', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	}).format(date);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
+
 	<body>
 		<Header />
+
 		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+			<section class="hero">
+				<div class="hero-inner">
+					<p class="hero-label">気になるニュースブログ</p>
+
+					<h1>
+						世の中の「これって何？」を<br />
+						わかりやすく解説。
+					</h1>
+
+					<p class="hero-description">
+						ニュースで見かける言葉や話題、季節の疑問などを、
+						できるだけ分かりやすく紹介します。
+					</p>
+
+					<a class="hero-button" href="/blog/">
+						記事一覧を見る
+					</a>
+				</div>
+			</section>
+
+			<section class="latest-section">
+				<div class="section-inner">
+
+					<div class="section-heading">
+						<div>
+							<p class="section-label">LATEST</p>
+							<h2>新着記事</h2>
+						</div>
+
+						<a href="/blog/" class="all-posts-link">
+							すべての記事を見る →
+						</a>
+					</div>
+
+					<div class="post-grid">
+						{
+							posts.map((post) => (
+								<article class="post-card">
+
+									<a
+										class="post-image-link"
+										href={`/blog/${post.id}/`}
+									>
+										{
+											post.data.heroImage ? (
+												<Image
+													src={post.data.heroImage}
+													width={800}
+													height={420}
+													alt={post.data.title}
+												/>
+											) : (
+												<div class="no-image">
+													<span>気になるニュースブログ</span>
+												</div>
+											)
+										}
+									</a>
+
+									<div class="post-content">
+										<p class="post-category">
+											気になるニュース解説
+										</p>
+
+										<h3>
+											<a href={`/blog/${post.id}/`}>
+												{post.data.title}
+											</a>
+										</h3>
+
+										<p class="post-description">
+											{post.data.description}
+										</p>
+
+										<div class="post-footer">
+											<time datetime={post.data.pubDate.toISOString()}>
+												{formatJapaneseDate(post.data.pubDate)}
+											</time>
+
+											<a
+												class="read-more"
+												href={`/blog/${post.id}/`}
+											>
+												記事を読む →
+											</a>
+										</div>
+									</div>
+
+								</article>
+							))
+						}
+					</div>
+
+				</div>
+			</section>
+
+			<section class="about-section">
+				<div class="about-inner">
+					<div>
+						<p class="section-label">ABOUT</p>
+						<h2>このブログについて</h2>
+
+						<p>
+							テレビやネットのニュースを見ていて
+							「これってどういう意味？」
+							「なぜ今話題なの？」
+							と感じたことを、できるだけ分かりやすく解説するブログです。
+						</p>
+					</div>
+
+					<a href="/about/" class="about-button">
+						詳しく見る →
+					</a>
+				</div>
+			</section>
 		</main>
+
 		<Footer />
 	</body>
 </html>
+
+<style>
+	main {
+		background: #f5f6f8;
+	}
+
+	.hero {
+		padding: 55px 20px 62px;
+		background:
+			linear-gradient(
+				135deg,
+				#eef5ff 0%,
+				#ffffff 55%,
+				#f4f8ff 100%
+			);
+		border-bottom: 1px solid #e7ebf0;
+	}
+
+	.hero-inner {
+		max-width: 1000px;
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	.hero-label {
+		margin: 0 0 18px;
+		color: #376fd0;
+		font-size: 0.86rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+	}
+
+	.hero h1 {
+		margin: 0;
+		font-size: clamp(2rem, 4vw, 3.2rem);
+		line-height: 1.35;
+		letter-spacing: 0.01em;
+		color: #202124;
+	}
+
+	.hero-description {
+		max-width: 650px;
+		margin: 28px auto 0;
+		font-size: 1.05rem;
+		line-height: 1.9;
+		color: #5f6368;
+	}
+
+	.hero-button {
+		display: inline-block;
+		margin-top: 32px;
+		padding: 12px 24px;
+		border-radius: 8px;
+		background: #376fd0;
+		color: #ffffff;
+		font-size: 0.95rem;
+		font-weight: 700;
+		text-decoration: none;
+		transition:
+			transform 0.2s ease,
+			opacity 0.2s ease;
+	}
+
+	.hero-button:hover {
+		transform: translateY(-2px);
+		opacity: 0.9;
+	}
+
+	.latest-section {
+		padding: 48px 20px 70px;
+	}
+
+	.section-inner {
+		max-width: 1100px;
+		margin: 0 auto;
+	}
+
+	.section-heading {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 24px;
+		margin-bottom: 30px;
+	}
+
+	.section-label {
+		margin: 0 0 4px;
+		color: #376fd0;
+		font-size: 0.78rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+	}
+
+	.section-heading h2,
+	.about-inner h2 {
+		margin: 0;
+		color: #202124;
+		font-size: 2rem;
+	}
+
+	.all-posts-link {
+		color: #557199;
+		font-size: 0.9rem;
+		text-decoration: none;
+	}
+
+	.all-posts-link:hover {
+		text-decoration: underline;
+	}
+
+	.post-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 30px;
+	}
+
+	.post-card {
+		overflow: hidden;
+		background: #ffffff;
+		border-radius: 12px;
+		box-shadow: 0 3px 16px rgba(0, 0, 0, 0.06);
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.post-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 7px 24px rgba(0, 0, 0, 0.09);
+	}
+
+	.post-image-link {
+		display: block;
+		aspect-ratio: 16 / 8.5;
+		overflow: hidden;
+		background: #eef1f5;
+	}
+
+	.post-image-link :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.25s ease;
+	}
+
+	.post-card:hover .post-image-link :global(img) {
+		transform: scale(1.02);
+	}
+
+	.no-image {
+		display: flex;
+		width: 100%;
+		height: 100%;
+		align-items: center;
+		justify-content: center;
+		padding: 20px;
+		background:
+			linear-gradient(
+				135deg,
+				#edf3fc,
+				#f8fafc
+			);
+		color: #6b7890;
+		font-weight: 700;
+	}
+
+	.post-content {
+		padding: 24px 26px 26px;
+	}
+
+	.post-category {
+		display: inline-block;
+		margin: 0 0 12px;
+		padding: 4px 9px;
+		border-radius: 999px;
+		background: #eef4ff;
+		color: #2459a9;
+		font-size: 0.75rem;
+		font-weight: 700;
+	}
+
+	.post-content h3 {
+		margin: 0;
+		font-size: 1.35rem;
+		line-height: 1.55;
+	}
+
+	.post-content h3 a {
+		color: #202124;
+		text-decoration: none;
+	}
+
+	.post-content h3 a:hover {
+		color: #376fd0;
+	}
+
+	.post-description {
+		margin: 15px 0 0;
+		color: #666;
+		font-size: 0.94rem;
+		line-height: 1.8;
+	}
+
+	.post-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		margin-top: 22px;
+		padding-top: 18px;
+		border-top: 1px solid #edf0f3;
+	}
+
+	.post-footer time {
+		color: #888;
+		font-size: 0.82rem;
+	}
+
+	.read-more {
+		color: #376fd0;
+		font-size: 0.86rem;
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.about-section {
+		padding: 0 20px 80px;
+	}
+
+	.about-inner {
+		display: flex;
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 40px 44px;
+		align-items: center;
+		justify-content: space-between;
+		gap: 40px;
+		background: #ffffff;
+		border-radius: 12px;
+		box-shadow: 0 3px 16px rgba(0, 0, 0, 0.05);
+	}
+
+	.about-inner p:not(.section-label) {
+		max-width: 700px;
+		margin: 18px 0 0;
+		color: #666;
+		line-height: 1.9;
+	}
+
+	.about-button {
+		flex-shrink: 0;
+		padding: 11px 18px;
+		border: 1px solid #cfd8e6;
+		border-radius: 8px;
+		color: #376fd0;
+		font-size: 0.9rem;
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	@media (max-width: 760px) {
+		.hero {
+			padding: 58px 20px 64px;
+		}
+
+		.hero h1 {
+			font-size: 2.15rem;
+		}
+
+		.hero-description {
+			font-size: 0.96rem;
+		}
+
+		.latest-section {
+			padding: 48px 12px 58px;
+		}
+
+		.section-heading {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.post-grid {
+			grid-template-columns: 1fr;
+			gap: 22px;
+		}
+
+		.post-content {
+			padding: 20px;
+		}
+
+		.post-content h3 {
+			font-size: 1.2rem;
+		}
+
+		.about-section {
+			padding: 0 12px 58px;
+		}
+
+		.about-inner {
+			align-items: flex-start;
+			flex-direction: column;
+			padding: 28px 24px;
+			gap: 24px;
+		}
+
+		.post-footer {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 8px;
+		}
+	}
+</style>
