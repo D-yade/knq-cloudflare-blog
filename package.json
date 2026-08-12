@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "new-post": "node scripts/new-post.mjs",
+    "add-image": "node scripts/add-image.mjs",
     "publish": "node scripts/publish.mjs"
   },
   "dependencies": {
