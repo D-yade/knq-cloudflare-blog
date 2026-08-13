@@ -1,9 +1,11 @@
 {
   "name": "knq-cloudflare-blog",
+  "main": "./worker.js",
   "compatibility_date": "2026-08-13",
 
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS"
   },
 
   "kv_namespaces": [
