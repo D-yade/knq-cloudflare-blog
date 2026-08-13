@@ -1,0 +1,12 @@
+{
+	"name": "knq-cloudflare-blog",
+	"compatibility_date": "2026-08-13",
+	"pages_build_output_dir": "./dist",
+
+	"kv_namespaces": [
+		{
+			"binding": "CONTACTS",
+			"id": "e61eafbc9e68486d9408af622dbd8c40"
+		}
+	]
+}

@@ -1,0 +1,199 @@
+---
+import Layout from '../layouts/AboutPage.astro';
+---
+
+<Layout
+	title="お問い合わせ"
+	description="気になるニュースブログへのお問い合わせページです。"
+>
+	<p>
+		「気になるニュースブログ」へのお問い合わせは、以下をご確認のうえご連絡ください。
+	</p>
+
+	<h2>お問い合わせについて</h2>
+
+	<p>
+		記事内容に関するご意見・ご質問、掲載内容に関するお問い合わせなどを受け付けています。
+	</p>
+
+	<p>
+		内容によっては、返信までにお時間をいただく場合や、
+		返信できない場合がありますので、あらかじめご了承ください。
+	</p>
+
+	<h2>掲載内容の修正・削除について</h2>
+
+	<p>
+		当サイトに掲載している内容について、
+		誤りのご指摘や修正・削除のご要望がある場合は、
+		対象となる記事のURLと具体的な内容をご記載ください。
+	</p>
+
+	<h2>お問い合わせ方法</h2>
+
+	<form id="contact-form" action="/api/contact" method="POST" class="contact-form">
+	<div class="form-group">
+		<label for="name">お名前</label>
+		<input
+			type="text"
+			id="name"
+			name="name"
+			required
+		/>
+	</div>
+
+	<div class="form-group">
+		<label for="email">メールアドレス</label>
+		<input
+			type="email"
+			id="email"
+			name="email"
+			required
+		/>
+	</div>
+
+	<div class="form-group">
+		<label for="message">お問い合わせ内容</label>
+		<textarea
+			id="message"
+			name="message"
+			rows="8"
+			required
+		></textarea>
+	</div>
+
+	<button type="submit">送信する</button>
+</form>
+
+<p id="form-message" class="form-message" aria-live="polite"></p>
+
+<style>
+	.contact-form {
+		margin-top: 28px;
+	}
+
+	.form-group {
+		margin-bottom: 24px;
+	}
+
+	.contact-form label {
+		display: block;
+		margin-bottom: 8px;
+		font-weight: 700;
+	}
+
+	.contact-form input,
+	.contact-form textarea {
+		width: 100%;
+		box-sizing: border-box;
+		padding: 12px 14px;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		font: inherit;
+		background: #fff;
+	}
+
+	.contact-form input:focus,
+	.contact-form textarea:focus {
+		outline: none;
+		border-color: #557199;
+		box-shadow: 0 0 0 3px rgba(85, 113, 153, 0.12);
+	}
+
+	.contact-form button {
+		display: inline-block;
+		padding: 12px 28px;
+		border: 0;
+		border-radius: 8px;
+		background: #557199;
+		color: #fff;
+		font: inherit;
+		font-weight: 700;
+		cursor: pointer;
+	}
+
+	.contact-form button:hover {
+		opacity: 0.9;
+	}
+
+    	.form-message {
+		margin-top: 20px;
+		padding: 14px 16px;
+		border-radius: 8px;
+		font-weight: 700;
+		display: none;
+	}
+
+	.form-message.success {
+		display: block;
+		background: #f0fdf4;
+		border: 1px solid #bbf7d0;
+		color: #166534;
+	}
+
+	.form-message.error {
+		display: block;
+		background: #fef2f2;
+		border: 1px solid #fecaca;
+		color: #991b1b;
+	}
+
+	.contact-form button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+    
+</style>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('#contact-form');
+	const formMessage = document.querySelector<HTMLParagraphElement>('#form-message');
+
+	if (form && formMessage) {
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+
+			const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+			if (button) {
+				button.disabled = true;
+				button.textContent = '送信中...';
+			}
+
+			formMessage.textContent = '';
+
+			try {
+				const formData = new FormData(form);
+
+				const response = await fetch('/api/contact', {
+					method: 'POST',
+					body: formData,
+				});
+
+				const result = await response.json();
+
+				if (!response.ok) {
+					throw new Error(result.message || '送信に失敗しました。');
+				}
+
+				formMessage.textContent = 'お問い合わせを送信しました。ありがとうございます。';
+				formMessage.className = 'form-message success';
+
+				form.reset();
+			} catch (error) {
+				formMessage.textContent =
+					error instanceof Error
+						? error.message
+						: '送信に失敗しました。時間をおいてもう一度お試しください。';
+
+				formMessage.className = 'form-message error';
+			} finally {
+				if (button) {
+					button.disabled = false;
+					button.textContent = '送信する';
+				}
+			}
+		});
+	}
+</script>
+</Layout>

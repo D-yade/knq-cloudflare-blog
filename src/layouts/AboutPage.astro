@@ -1,0 +1,183 @@
+---
+import { Image } from 'astro:assets';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	heroImage?: ImageMetadata;
+}
+
+import type { ImageMetadata } from 'astro';
+
+const {
+	title,
+	description,
+	heroImage,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead
+			title={`${title} | 気になるニュースブログ`}
+			description={description}
+			image={heroImage}
+		/>
+	</head>
+
+	<body>
+		<Header />
+
+		<main class="page-wrap">
+			<article class="page-container">
+
+				<div class="breadcrumb">
+					<a href="/">ホーム</a>
+					<span>›</span>
+					<span class="current">{title}</span>
+				</div>
+
+				<header class="page-header">
+					<h1>{title}</h1>
+
+					<p class="page-description">
+						{description}
+					</p>
+				</header>
+
+				{
+					heroImage && (
+						<div class="hero-image-wrap">
+							<Image
+								width={1200}
+								height={630}
+								src={heroImage}
+								alt={title}
+							/>
+						</div>
+					)
+				}
+
+				<div class="page-body">
+					<slot />
+				</div>
+
+			</article>
+		</main>
+
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.page-wrap {
+		padding: 34px 20px 70px;
+		background: #f5f6f8;
+		min-height: 100vh;
+	}
+
+	.page-container {
+		max-width: 900px;
+		margin: 0 auto;
+		background: #ffffff;
+		border-radius: 12px;
+		box-shadow: 0 3px 18px rgba(0, 0, 0, 0.06);
+		overflow: hidden;
+	}
+
+	.breadcrumb {
+		padding: 22px 48px 0;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.82rem;
+		color: #777;
+	}
+
+	.breadcrumb a {
+		color: #557199;
+		text-decoration: none;
+	}
+
+	.page-header {
+		padding: 28px 48px 32px;
+	}
+
+	.page-header h1 {
+		margin: 0;
+		font-size: clamp(1.9rem, 3.4vw, 2.5rem);
+		line-height: 1.4;
+		color: #202124;
+	}
+
+	.page-description {
+		margin: 18px 0 0;
+		line-height: 1.85;
+		color: #5f6368;
+	}
+
+	.hero-image-wrap {
+		margin: 0 48px 34px;
+		border-radius: 10px;
+		overflow: hidden;
+	}
+
+	.hero-image-wrap :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.page-body {
+		padding: 6px 48px 62px;
+		font-size: 1.04rem;
+		line-height: 2;
+		color: #303134;
+	}
+
+	.page-body :global(p) {
+		margin: 0 0 1.75em;
+	}
+
+	.page-body :global(h2) {
+		margin: 2.5em 0 1.1em;
+		padding: 13px 17px;
+		border-left: 5px solid #376fd0;
+		background: #f2f6fc;
+		border-radius: 5px;
+		font-size: 1.45rem;
+		line-height: 1.5;
+	}
+
+	@media (max-width: 720px) {
+		.page-wrap {
+			padding: 14px 8px 45px;
+		}
+
+		.breadcrumb {
+			padding: 18px 20px 0;
+		}
+
+		.page-header {
+			padding: 20px;
+		}
+
+		.page-header h1 {
+			font-size: 1.7rem;
+		}
+
+		.hero-image-wrap {
+			margin: 0 14px 28px;
+		}
+
+		.page-body {
+			padding: 4px 20px 42px;
+			font-size: 1rem;
+		}
+	}
+</style>
