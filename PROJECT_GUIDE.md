@@ -1,0 +1,948 @@
+# 気になるニュースブログ — PROJECT GUIDE
+
+このファイルは「気になるニュースブログ（kn-q.com）」の開発・記事作成・運用を、
+ChatGPT、Claude Code、その他のAIや将来の担当者へ引き継ぐための資料です。
+
+このプロジェクトを変更するAI・開発者は、作業を始める前に必ずこのファイルを読んでください。
+
+
+# 1. サイト概要
+
+サイト名：
+気になるニュースブログ
+
+本番URL：
+https://kn-q.com
+
+コンセプト：
+テレビやネットで話題になったニュースを、
+「なぜ？」「どうして？」という視点から分かりやすく解説するブログ。
+
+主な記事：
+ニュース解説、ゲームなど話題になっているテーマの解説記事。
+
+サイトはWordPressではなく、Astroで構築している。
+
+
+# 2. 技術構成
+
+主な構成：
+
+- Astro
+- Markdown / MDX
+- Node.js
+- Git / GitHub
+- Cloudflare
+- Cloudflare Workers
+- Cloudflare KV
+- Cloudflare Turnstile
+- Google Analytics
+- Google AdSense
+
+Astro：
+
+astro ^7.1.6
+
+Node.js：
+
+22.12.0以上
+
+GitHubリポジトリ：
+
+D-yade/knq-cloudflare-blog
+
+本番サイト：
+
+https://kn-q.com
+
+
+# 3. 重要なディレクトリ
+
+記事：
+
+src/content/blog/
+
+記事用画像：
+
+src/assets/blog/
+
+主要コンポーネント：
+
+src/components/
+
+記事レイアウト：
+
+src/layouts/BlogPost.astro
+
+SEO・head：
+
+src/components/BaseHead.astro
+
+サイト基本情報：
+
+src/consts.ts
+
+コンテンツ設定：
+
+src/content.config.ts
+
+自動化スクリプト：
+
+scripts/
+
+Cloudflare Worker：
+
+worker.js
+
+Cloudflare設定：
+
+wrangler.jsonc
+
+公開用生成物：
+
+dist/
+
+dist/ はビルドで生成されるため、原則として直接編集しない。
+
+
+# 4. 基本コマンド
+
+ローカル開発：
+
+npm run dev
+
+ビルド：
+
+npm run build
+
+プレビュー：
+
+npm run preview
+
+新しい記事：
+
+npm run new-post
+
+本文画像追加：
+
+npm run add-image
+
+アイキャッチ画像追加：
+
+npm run add-hero
+
+公開：
+
+npm run publish
+
+
+# 5. 新規記事の作成
+
+基本的に手作業でMarkdownファイルをゼロから作らず、
+
+npm run new-post
+
+を使用する。
+
+実行すると、
+
+1. 記事タイトル
+2. URL名（slug）
+3. 記事の説明
+
+を質問される。
+
+入力内容を確認して y を入力すると、
+
+src/content/blog/[slug].md
+
+が作成される。
+
+公開URL：
+
+https://kn-q.com/blog/[slug]/
+
+slugには、
+
+- 半角英小文字
+- 数字
+- ハイフン
+
+のみ使用する。
+
+
+# 6. 記事Frontmatter
+
+基本形式：
+
+---
+title: "記事タイトル"
+description: "記事の説明"
+pubDate: YYYY-MM-DD
+heroImage: "../../assets/blog/slug.png"
+---
+
+必要に応じて、
+
+updatedDate: YYYY-MM-DD
+
+を追加できる。
+
+content.config.ts によって、
+
+- title
+- description
+- pubDate
+- updatedDate
+- heroImage
+
+が管理されている。
+
+
+# 7. 記事の基本構成
+
+new-post.mjs では基本テンプレートとして、
+
+導入文
+
+## まず結論
+
+## これは何？
+
+## なぜ今話題になっているの？
+
+## 私たちの生活にはどう関係する？
+
+## まとめ
+
+が作成される。
+
+ただし、これは固定ではない。
+
+記事テーマに応じて見出しは変更してよい。
+
+最優先は、
+
+「読者が知りたいことを分かりやすく答える」
+
+こと。
+
+
+# 8. 記事を書く際の方針
+
+記事では以下を重視する。
+
+- 最初に読者が知りたい結論を示す
+- 難しい内容をできるだけ平易な日本語にする
+- 不必要に文章を長くしない
+- 見出しだけでも内容を把握できる構成にする
+- SEOだけを目的に不自然なキーワード連呼をしない
+- 事実と意見を混同しない
+- 最新情報を扱う場合は情報の正確性を確認する
+- 読者に誤解を与える断定を避ける
+- 他サイトの文章をコピーしない
+
+
+# 9. 太字ルール
+
+通常の重要箇所：
+
+**重要な文章**
+
+通常のMarkdown太字は黒色で表示する。
+
+特に重要な結論・判断・おすすめなど：
+
+<span class="red">特に重要な文章</span>
+
+これによって赤色の太字になる。
+
+赤太字CSSは、
+
+src/layouts/BlogPost.astro
+
+に設定済み。
+
+CSS：
+
+.article-body :global(.red) {
+    color: #d93025;
+    font-weight: 700;
+}
+
+赤太字は乱用しない。
+
+1記事につき目安3〜5箇所程度。
+
+主に、
+
+- 記事の結論
+- 読者にとって重要な判断
+- 強いおすすめ
+- 特に注意すべき点
+
+などに使用する。
+
+人名・ゲームキャラクター名・一般的な固有名詞などを、
+目立たせる目的だけで赤くしない。
+
+通常の強調は黒太字を使う。
+
+
+# 10. アイキャッチ画像
+
+記事のアイキャッチ画像追加には、
+
+npm run add-hero
+
+を使用する。
+
+入力：
+
+記事のURL名（slug）
+
+画像ファイルのパス
+
+対応形式：
+
+- JPG
+- JPEG
+- PNG
+- WebP
+
+保存先：
+
+src/assets/blog/
+
+基本的には、
+
+src/assets/blog/[slug].png
+
+などになる。
+
+記事FrontmatterのheroImageとファイル名を一致させること。
+
+既に同名画像が存在する場合、
+add-hero.mjs は上書きせずエラーで停止する。
+
+
+# 11. 本文画像
+
+本文画像追加には、
+
+npm run add-image
+
+を使用する。
+
+入力：
+
+記事URL名
+
+画像ファイルのパス
+
+画像の説明（alt）
+
+画像は、
+
+src/assets/blog/[slug]/
+
+に保存される。
+
+例：
+
+src/assets/blog/example-article/image-1.png
+
+スクリプト実行後にMarkdown記法が表示されるので、
+記事本文の入れたい位置へ貼り付ける。
+
+altには画像内容が分かる説明を書く。
+
+
+# 12. 記事レイアウト
+
+記事ページは、
+
+src/layouts/BlogPost.astro
+
+で管理している。
+
+主な機能：
+
+- パンくずリスト
+- 記事タイトル
+- description
+- 公開日
+- 更新日
+- アイキャッチ画像
+- 目次
+- 本文
+- BlogPosting構造化データ
+
+目次はH2見出しから自動生成される。
+
+
+# 13. SEO
+
+SEOの基本設定はすでに実装済み。
+
+AIや開発者は、
+理由なくSEO設定を削除・重複追加しないこと。
+
+
+## BaseHead.astro
+
+以下を設定済み：
+
+- title
+- meta description
+- canonical URL
+- Open Graph
+- Twitter Card
+- Google Analytics
+- Google AdSense
+
+
+## canonical
+
+現在のURLからcanonical URLを生成している。
+
+
+## OGP
+
+以下を出力：
+
+og:type
+og:url
+og:title
+og:description
+og:image
+
+
+## Twitter Card
+
+summary_large_image を使用。
+
+
+# 14. 構造化データ
+
+記事ページには、
+
+BlogPosting
+
+のJSON-LD構造化データを設定済み。
+
+主な内容：
+
+- headline
+- description
+- datePublished
+- dateModified
+- mainEntityOfPage
+- image
+- author
+- publisher
+
+author：
+
+気になるニュースブログ編集部
+
+author URL：
+
+https://kn-q.com/about/
+
+publisher：
+
+気になるニュースブログ
+
+Googleのリッチリザルトテストで有効になるよう調整済み。
+
+構造化データを変更する場合は、
+既存の有効な設定を壊さないよう注意する。
+
+
+# 15. Sitemap
+
+@astrojs/sitemap
+
+を導入済み。
+
+astro.config.mjs：
+
+site: 'https://kn-q.com'
+
+ビルド時にサイトマップが生成される。
+
+Google Search Consoleで使用する。
+
+
+# 16. Google Analytics
+
+Google Analytics設定済み。
+
+Measurement ID：
+
+G-SZMWEQXE2E
+
+コードは、
+
+src/components/BaseHead.astro
+
+にある。
+
+重要：
+
+Analyticsコードを別の場所へ重複追加しない。
+
+
+# 17. Google AdSense
+
+Google AdSense設定済み。
+
+Publisher ID：
+
+ca-pub-1127797098796805
+
+AdSenseスクリプトは、
+
+src/components/BaseHead.astro
+
+に設定済み。
+
+重要：
+
+AdSenseコードを重複して追加しない。
+
+ads.txt：
+
+public/ads.txt
+
+に存在する。
+
+
+# 18. お問い合わせフォーム
+
+お問い合わせフォームはCloudflare Workerを使用している。
+
+API：
+
+POST /api/contact
+
+処理：
+
+1. フォームデータ受信
+2. Cloudflare Turnstileトークン確認
+3. Turnstile APIで検証
+4. name / email / message を確認
+5. Cloudflare KVへ保存
+6. JSONレスポンスを返す
+
+KV Binding：
+
+CONTACTS
+
+保存キー：
+
+contact:[timestamp]:[UUID]
+
+保存内容：
+
+- name
+- email
+- message
+- createdAt
+
+
+# 19. Cloudflare Turnstile
+
+お問い合わせフォームのスパム・Bot対策として、
+
+Cloudflare Turnstile
+
+を使用している。
+
+Workerでは、
+
+env.TURNSTILE_SECRET_KEY
+
+を使用する。
+
+重要：
+
+TURNSTILE_SECRET_KEYの実際の値は、
+このファイルやGitHubへ絶対に書かない。
+
+秘密情報はCloudflare側の環境変数・Secretとして管理する。
+
+
+# 20. Cloudflare Worker
+
+worker.js
+
+がWorkerのエントリーポイント。
+
+お問い合わせAPI以外のアクセスは、
+
+env.ASSETS.fetch(request)
+
+へ渡す。
+
+つまり、
+
+通常ページ → Astroで生成した静的ファイル
+
+お問い合わせ送信 → Worker
+
+という構成。
+
+
+# 21. Cloudflare設定
+
+wrangler.jsonc
+
+主な設定：
+
+name:
+knq-cloudflare-blog
+
+main:
+./worker.js
+
+assets.directory:
+./dist
+
+assets.binding:
+ASSETS
+
+KV binding:
+CONTACTS
+
+CloudflareのAPIトークン、
+Turnstile Secretなどの秘密情報は、
+このドキュメントへ記載しない。
+
+
+# 22. ビルド
+
+変更後は必ず、
+
+npm run build
+
+で確認する。
+
+ビルドエラーがある状態では公開しない。
+
+現在の公開スクリプトも、
+GitHubへ送る前に自動的にビルドを実行する。
+
+
+# 23. 公開方法
+
+通常の公開は、
+
+npm run publish
+
+を使用する。
+
+publish.mjs の処理：
+
+1. npm run build
+2. ビルド成功確認
+3. git status --short で変更確認
+4. 公開予定ファイルを画面表示
+5. ユーザーに公開確認
+6. コミットメッセージ入力
+7. git add .
+8. git commit
+9. git push
+
+GitHubへpushされると、
+Cloudflare側で自動的にサイト更新処理が行われる。
+
+公開URL：
+
+https://kn-q.com
+
+
+# 24. 公開時の重要ルール
+
+AIはユーザーの確認なしに、
+勝手に公開しない。
+
+特に、
+
+npm run publish
+
+実行時に表示される、
+
+「公開される変更」
+
+を確認する。
+
+意図しないファイルが含まれている場合は公開を中止する。
+
+大量のファイル変更が突然表示された場合も、
+原因を確認してから公開する。
+
+
+# 25. Gitについて
+
+GitHub：
+
+D-yade/knq-cloudflare-blog
+
+mainブランチが本番公開につながっている。
+
+そのため、
+
+mainへのpush = 本番サイト更新
+
+と考えること。
+
+危険なGit操作を安易に実行しない。
+
+特に、
+
+git reset --hard
+git clean -fd
+git push --force
+
+などは、
+ユーザーが意味を理解して明示的に希望していない限り実行しない。
+
+
+# 26. AIへの重要な作業ルール
+
+このプロジェクトをClaude Code、ChatGPT、その他AIが操作する場合、
+以下を必ず守る。
+
+
+## 最初に確認する
+
+作業開始時：
+
+1. PROJECT_GUIDE.md を読む
+2. AGENTS.md を読む
+3. 関係する既存コードを確認する
+4. 現在のGit変更状態を確認する
+
+既存コードを読まずに、
+推測だけでファイルを書き換えない。
+
+
+## 既存機能を壊さない
+
+このサイトには既に、
+
+- SEO
+- Analytics
+- AdSense
+- 構造化データ
+- Sitemap
+- お問い合わせ
+- Turnstile
+- KV
+- 記事作成スクリプト
+- 画像追加スクリプト
+- 公開スクリプト
+
+などが実装されている。
+
+新機能を追加するときに、
+既存機能を削除したり重複実装したりしない。
+
+
+## 小さく変更する
+
+問題を修正するときは、
+
+「必要な場所だけ変更する」
+
+ことを優先する。
+
+関係ないファイルを同時に大規模変更しない。
+
+リファクタリングは、
+明確な必要性がない限り行わない。
+
+
+# 27. ユーザーへの案内方法
+
+このプロジェクトのユーザーは、
+AIの案内を見ながらMacのターミナルやVS Codeを操作する。
+
+そのためAIは、
+
+一度に大量の操作を要求しない。
+
+基本的には、
+
+1. コマンドを1つ、または関連する少数だけ提示
+2. ユーザーに実行してもらう
+3. 結果を確認
+4. 次の操作を案内
+
+という進め方にする。
+
+エラーが発生した場合は、
+推測で次々に変更せず、
+まずエラー内容を確認する。
+
+
+# 28. ユーザーがコードに詳しい前提で説明しない
+
+専門用語だけで説明せず、
+
+「何をする操作なのか」
+
+を簡単に説明してから操作を案内する。
+
+危険な操作の場合は、
+実行前に何が起こるか説明する。
+
+ユーザーに複雑なコード修正をさせる場合は、
+部分修正よりも、
+
+「この範囲を全部置き換える」
+
+など間違いにくい方法を優先する。
+
+
+# 29. 記事作成時のAIの役割
+
+AIが記事制作を支援する場合は、
+
+1. テーマ確認
+2. 最新情報・一次情報の確認
+3. 読者の検索意図を整理
+4. タイトル案
+5. description
+6. 見出し構成
+7. 本文
+8. 強調箇所
+9. アイキャッチ
+10. ビルド確認
+11. 公開確認
+
+という流れを基本とする。
+
+ただし毎回すべてを機械的に行う必要はない。
+
+ユーザーの依頼内容に応じて必要な工程だけ行う。
+
+
+# 30. 記事の情報確認
+
+ニュース・ゲーム・制度・料金・サービス仕様など、
+変更される可能性がある内容を書く場合は、
+
+古い知識だけで記事を書かない。
+
+可能な限り、
+
+- 公式サイト
+- 公式発表
+- 一次情報
+- 信頼できる最新情報
+
+を確認する。
+
+確認できない情報を事実として断定しない。
+
+
+# 31. 画像について
+
+記事画像は著作権に注意する。
+
+他サイトの画像を無断転載しない。
+
+AI生成画像を使用する場合でも、
+記事内容と誤認させるような表現には注意する。
+
+実在人物や実際のニュース写真のように見せる必要がない場合は、
+説明用・イメージ用であることが分かる画像を優先する。
+
+
+# 32. セキュリティ
+
+以下をGitHubへ保存しない。
+
+- パスワード
+- API Secret
+- Cloudflare API Token
+- Turnstile Secret Key
+- ログイン情報
+- その他秘密鍵
+
+コード内で、
+
+env.TURNSTILE_SECRET_KEY
+
+のように参照しているSecretは、
+値をソースコードへ直接書かない。
+
+
+# 33. 変更後の基本確認
+
+コード変更後：
+
+npm run build
+
+記事確認：
+
+npm run dev
+
+公開：
+
+npm run publish
+
+を基本とする。
+
+公開前には必ず変更ファイルを確認する。
+
+
+# 34. このドキュメントについて
+
+このPROJECT_GUIDE.mdは、
+このブログの「引き継ぎ書」である。
+
+サイト構成や運用方法に重要な変更を加えた場合は、
+コードだけでなくこのファイルも更新する。
+
+例：
+
+- 新しい公開方法を導入
+- 新しいSEO機能を追加
+- Cloudflare構成変更
+- 新しい記事作成スクリプト追加
+- Analytics変更
+- AdSense変更
+- お問い合わせ方式変更
+
+など。
+
+
+# 35. 最重要原則
+
+このプロジェクトでは、
+
+「動いているものを不用意に壊さない」
+
+ことを最優先する。
+
+AIは、
+
+既存コード確認
+↓
+必要最小限の変更
+↓
+ビルド確認
+↓
+ユーザー確認
+↓
+公開
+
+の順番を守る。
+
+不明な点がある場合は、
+推測で大規模変更せず、
+既存コードや設定を確認してから進める。
