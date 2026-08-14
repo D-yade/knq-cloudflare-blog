@@ -61,7 +61,10 @@ import Layout from '../layouts/AboutPage.astro';
 			required
 		></textarea>
 	</div>
-
+<div
+  class="cf-turnstile"
+  data-sitekey="0x4AAAAAAEPaGOoS5qsPAsO0"
+></div>
 	<button type="submit">送信する</button>
 </form>
 
@@ -196,4 +199,7 @@ import Layout from '../layouts/AboutPage.astro';
 		});
 	}
 </script>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 </Layout>

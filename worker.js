@@ -5,6 +5,36 @@ export default {
     if (url.pathname === "/api/contact" && request.method === "POST") {
       try {
         const formData = await request.formData();
+        const turnstileToken = formData.get("cf-turnstile-response");
+        if (!turnstileToken) {
+          return Response.json(
+            { message: "ロボット確認に失敗しました。もう一度お試しください。" },
+            { status: 400 }
+          );
+        }
+        
+        const verifyResponse = await fetch(
+          "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              secret: env.TURNSTILE_SECRET_KEY,
+              response: turnstileToken,
+            }),
+          }
+        );
+        
+        const verifyResult = await verifyResponse.json();
+        
+        if (!verifyResult.success) {
+          return Response.json(
+            { message: "ロボット確認に失敗しました。もう一度お試しください。" },
+            { status: 403 }
+          );
+        }
 
         const name = String(formData.get("name") || "").trim();
         const email = String(formData.get("email") || "").trim();
