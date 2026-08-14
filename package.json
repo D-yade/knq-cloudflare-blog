@@ -12,6 +12,7 @@
     "astro": "astro",
     "new-post": "node scripts/new-post.mjs",
     "add-image": "node scripts/add-image.mjs",
+    "add-hero": "node scripts/add-hero.mjs",
     "publish": "node scripts/publish.mjs"
   },
   "dependencies": {
