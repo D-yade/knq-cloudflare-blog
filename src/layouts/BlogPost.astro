@@ -4,6 +4,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'] & {
 	headings?: Array<{
@@ -30,6 +31,29 @@ const formatJapaneseDate = (date: Date) =>
 	}).format(date);
 
 const tocHeadings = headings.filter((heading) => heading.depth === 2);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        datePublished: pubDate.toISOString(),
+        ...(updatedDate && {
+                dateModified: updatedDate.toISOString(),
+        }),
+        mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': canonicalURL.href,
+        },
+        ...(heroImage && {
+                image: new URL(heroImage.src, Astro.url).href,
+        }),
+        publisher: {
+                '@type': 'Organization',
+                name: SITE_TITLE,
+        },
+};
 ---
 
 <!doctype html>
@@ -40,6 +64,11 @@ const tocHeadings = headings.filter((heading) => heading.depth === 2);
 			description={description}
 			image={heroImage}
 		/>
+
+		<script
+        type="application/ld+json"
+        set:html={JSON.stringify(structuredData)}
+></script>
 	</head>
 
 	<body>
