@@ -9,26 +9,52 @@ console.log('');
 console.log('📝 気になるニュースブログ：新規記事作成');
 console.log('');
 
-const title = (await rl.question('記事タイトル：')).trim();
-const slug = (await rl.question('URL名（半角英数字・ハイフン）：')).trim();
-const description = (await rl.question('記事の説明：')).trim();
+let title = '';
+let slug = '';
+let description = '';
+
+while (true) {
+        title = (await rl.question('記事タイトル：')).trim();
+        slug = (await rl.question('URL名（半角英数字・ハイフン）：')).trim();
+        description = (await rl.question('記事の説明：')).trim();
+
+        console.log('');
+        console.log('──────── 入力内容 ────────');
+        console.log(`記事タイトル：${title}`);
+        console.log(`URL名：https://kn-q.com/blog/${slug}/`);
+        console.log(`記事の説明：${description}`);
+        console.log('──────────────────────');
+        console.log('');
+
+        const confirm = (await rl.question('この内容で記事を作成しますか？ (y/n)：'))
+                .trim()
+                .toLowerCase();
+
+        if (confirm === 'y' || confirm === 'yes') {
+                break;
+        }
+
+        console.log('');
+        console.log('↩️ 最初から入力し直します。');
+        console.log('');
+}
 
 rl.close();
 
 if (!title) {
-	console.error('❌ 記事タイトルを入力してください。');
-	process.exit(1);
+        console.error('❌ 記事タイトルを入力してください。');
+        process.exit(1);
 }
 
 if (!slug) {
-	console.error('❌ URL名を入力してください。');
-	process.exit(1);
+        console.error('❌ URL名を入力してください。');
+        process.exit(1);
 }
 
 if (!/^[a-z0-9-]+$/.test(slug)) {
-	console.error('❌ URL名には半角英小文字・数字・ハイフンだけを使ってください。');
-	console.error('例：rice-price / election-system / new-tax-rule');
-	process.exit(1);
+        console.error('❌ URL名には半角英小文字・数字・ハイフンだけを使ってください。');
+        console.error('例：rice-price / election-system / new-tax-rule');
+        process.exit(1);
 }
 
 const now = new Date();
@@ -44,13 +70,13 @@ const safeTitle = title.replaceAll('"', '\\"');
 const safeDescription = description.replaceAll('"', '\\"');
 
 const frontmatter = [
-	'---',
-	`title: "${safeTitle}"`,
-	`description: "${safeDescription}"`,
-	`pubDate: ${pubDate}`,
-	`heroImage: "../../assets/blog/${heroImageName}"`,
-	'---',
-	''
+        '---',
+        `title: "${safeTitle}"`,
+        `description: "${safeDescription}"`,
+        `pubDate: ${pubDate}`,
+        `heroImage: "../../assets/blog/${heroImageName}"`,
+        '---',
+        ''
 ].join('\n');
 
 const body = `ニュースを見ていると、「これはどういうこと？」と気になることがあります。
@@ -86,9 +112,9 @@ const filePath = path.join(blogDir, `${slug}.md`);
 fs.mkdirSync(blogDir, { recursive: true });
 
 if (fs.existsSync(filePath)) {
-	console.error('');
-	console.error(`❌ ${slug}.md はすでに存在します。`);
-	process.exit(1);
+        console.error('');
+        console.error(`❌ ${slug}.md はすでに存在します。`);
+        process.exit(1);
 }
 
 fs.writeFileSync(filePath, article, 'utf8');
