@@ -49,6 +49,10 @@ const structuredData = {
         ...(heroImage && {
                 image: new URL(heroImage.src, Astro.url).href,
         }),
+		author: {
+        '@type': 'Organization',
+        name: '気になるニュースブログ編集部',
+},
         publisher: {
                 '@type': 'Organization',
                 name: SITE_TITLE,
